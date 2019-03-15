@@ -1,17 +1,14 @@
 {
   "name": "bigstream-edge",
-  "description": "",
-  "version": "0.1",
-  "main": "./bigstream.js",
-  "author": {
-    "name": "Kamron Aroonrua",
-    "email": "kamron.aroonrua@nectec.or.th"
-  },
-  "keywords": [],
-  "licenses": {
-    "type": "none"
+  "version": "1.0.0",
+  "description": "BigStream Edge",
+  "main": "bigstream.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   },
   "dependencies": {
+    "node-ipc": "^9.1.1",
     "amqplib": "^0.4.2",
     "async": "^2.0.1",
     "axon": "^2.0.3",
@@ -39,5 +36,15 @@
     "request": "^2.79.0",
     "thunky": "^1.0.2",
     "tiny-worker": "^2.1.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.igridproject.info/bs/bigstream-edge.git"
+  },
+  "author": "iGridProject",
+  "license": "Apache-2.0"
 }
