@@ -1,0 +1,38 @@
+{
+  "apps" : [{
+    "name"        : "bs.storage.write",
+    "script"      : "./serv-storage.js",
+	"args"		  : "--process-write"
+  },
+  {
+    "name"        : "bs.storage.read",
+    "script"      : "./serv-storage.js",
+	"args"		  : "--process-read"
+  },
+  {
+    "name"        : "bs.devmaster",
+    "script"      : "./serv-devmaster.js"
+  },
+  {
+    "name"        : "bs.jobmaster",
+    "script"      : "./serv-jobmaster.js"
+  },
+  {
+    "name"        : "bs.processor",
+    "script"      : "./work-jobprocessor.js",
+	"exec_mode"   : "cluster",
+	"instances"   : 0
+  },
+  {
+    "name"        : "bs.api.service",
+    "script"      : "./serv-api.js"
+  },
+  {
+    "name"        : "bs.trigger.core",
+    "script"      : "./serv-coretrigger.js"
+  },
+  {
+    "name"        : "bs.trigger.httplistener",
+    "script"      : "./serv-httplistener.js"
+  }]
+}

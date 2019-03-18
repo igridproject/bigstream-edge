@@ -11,6 +11,9 @@ var EvenPub = ctx.getLib('lib/amqp/event-pub');
 var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
 var EvenSub = ctx.getLib('lib/amqp/event-sub');
 
+var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
+var JobCaller = ctx.getLib('lib/bus/jobcaller');
+
 const JOBCHANEL = 'bs_job_cmd';
 const API_PORT = 19180;
 
@@ -23,10 +26,15 @@ module.exports.create = function(cfg)
 function HTTPListener(cfg)
 {
     this.config = cfg;
-    this.httpacl = HttpACL.create({'conn':this.config.memstore.url});
-    this.jobcaller = new QueueCaller({'url':this.config.amqp.url,'name':'bs_jobs_cmd'});
-    this.evs = new EvenSub({'url':this.config.amqp.url,'name':'bs_trigger_cmd'});
+    this.conn = ConnCtx.create(this.config);
+    this.mem = this.conn.getMemstore();
+    this.httpacl = HttpACL.create({'redis':this.mem});
+    //this.jobcaller = new QueueCaller({'url':this.config.amqp.url,'name':'bs_jobs_cmd'});
+    this.evs = new TriggerSignal();
+    this.jobcaller = new JobCaller();
+    //this.evs = new EvenSub({'url':this.config.amqp.url,'name':'bs_trigger_cmd'});
     //this.evp = new EvenPub({'url':this.config.amqp.url,'name':JOBCHANEL});
+
 }
 
 HTTPListener.prototype.start = function()
@@ -75,8 +83,8 @@ HTTPListener.prototype._http_start = function()
 HTTPListener.prototype._controller_start = function ()
 {
   var self=this;
-  var topic = 'ctl.trigger.#';
-  self.evs.sub(topic,function(err,msg){
+  //var topic = 'ctl.trigger.#';
+  self.evs.sub(function(err,msg){
     if(err){
       console.log('WWW:AMQP ERROR Restarting ...');
       setTimeout(function(){
@@ -85,7 +93,7 @@ HTTPListener.prototype._controller_start = function ()
     }
     if(!msg){return;}
 
-    var ctl = msg.data;
+    var ctl = msg;
     if(ctl.trigger_type != 'http' && ctl.trigger_type != 'all')
     {
       return;

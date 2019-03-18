@@ -1,10 +1,8 @@
 var ctx = require('../../context');
 var cfg = ctx.config;
 
-var JobRegistry = ctx.getLib('lib/mems/job-registry');
-var TriggerRegistry = ctx.getLib('lib/mems/trigger-registry');
-var JUtils = ctx.getLib('lib/job/jobutils');
-var EvenPub = ctx.getLib('lib/amqp/event-pub');
+//var EvenPub = ctx.getLib('lib/amqp/event-pub');
+var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
 
 module.exports.create = function(cfg)
 {
@@ -16,23 +14,21 @@ function TriggerManager (cfg)
   this.config = cfg;
   this.conn = cfg.conn;
   this.mem = this.conn.getMemstore();
-  this.evp = new EvenPub({'url':this.conn.getAmqpUrl(),'name':'bs_trigger_cmd'});
-
-  // this.job_registry = JobRegistry.create({'redis':this.mem});
-  // this.trigger_registry = TriggerRegistry.create({'redis':this.mem});
+  //this.evp = new EvenPub({'url':this.conn.getAmqpUrl(),'name':'bs_trigger_cmd'});
+  this.evp = new TriggerSignal();
 }
 
 TriggerManager.prototype.reload = function (prm,cb)
 {
   var self = this;
-  var topic = 'ctl.trigger.all.reload';
+  //var topic = 'ctl.trigger.all.reload';
   var msg = {
     'trigger_type' : 'all',
     'cmd' : 'reload',
     'prm' : {'vo':prm.vo}
   }
 
-  self.evp.send(topic,msg);
+  self.evp.send(msg);
 
   if(typeof cb == 'function'){cb(null);}
 }

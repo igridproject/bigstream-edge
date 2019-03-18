@@ -142,7 +142,9 @@ function newdata_event(ctx,prm)
   }
 
   var evp = ctx.evp;
-  evp.send(key,objMsg);
+  if(evp){
+    evp.send(key,objMsg);
+  }
 }
 
 function parseData(dat)
