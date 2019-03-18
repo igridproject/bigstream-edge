@@ -1,2 +1,8 @@
 node_modules
 package-lock.json
+conf/secret.json
+conf/acl.json
+conf/amqp.json
+conf/memstore.json
+conf/storage.json
+.node-persist

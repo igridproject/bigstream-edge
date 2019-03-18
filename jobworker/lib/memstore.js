@@ -1,4 +1,7 @@
-var redis = require('redis');
+var ctx = require('../../context');
+//var redis = require('redis');
+
+var redis = ctx.getLib('lib/edge/bsmem');
 const PREFIX = 'bs:jobs';
 
 function memstore(conf){
