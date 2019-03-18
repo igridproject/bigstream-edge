@@ -18,10 +18,12 @@ var bodyParser = require('body-parser');
 var EventPub = ctx.getLib('lib/amqp/event-pub');
 var cfg = ctx.config;
 
-var SS_LISTEN = ctx.getUnixSocketUrl('ss.sock');
-var SS_URL = ctx.getUnixSocketUrl('ss.sock');
-// var SS_LISTEN = ctx.getServiceUrl(19030);
-// var SS_URL = ctx.getClientUrl(19030);
+//var SS_LISTEN = ctx.getUnixSocketUrl('ss.sock');
+//var SS_URL = ctx.getUnixSocketUrl('ss.sock');
+
+var SS_LISTEN = ctx.getServiceUrl(19030);
+var SS_URL = ctx.getClientUrl(19030);
+
 
 module.exports.create = function(cfg)
 {
@@ -36,8 +38,8 @@ var SS = function StorageService(p_cfg)
     var amqp_cfg = p_cfg.amqp;
 
     this.context = {
-      'cfg':p_cfg,
-      'evp':new EventPub({'url':amqp_cfg.url,'name':'bs_storage'})
+      'cfg':p_cfg,'evp':null
+      //'evp':new EventPub({'url':amqp_cfg.url,'name':'bs_storage'})
     }
 
     this.conn = ConnCtx.create(this.config);
@@ -45,13 +47,13 @@ var SS = function StorageService(p_cfg)
 
     this.db = Db.create({'redis':this.mem,'repos_dir':storage_cfg.repository,'context':this.context});
     this.worker_pool = WorkerPool.create({'size':2});
-    //this.storagecaller = new SSCaller({'url':SS_URL});
+    this.storagecaller = new SSCaller({'url':SS_URL});
 }
 
 SS.prototype.start = function()
 {
   console.log('Starting Storage Service ...\n');
-  this.amqp_start();
+  //this.amqp_start();
   this.ipc_start();
   setTimeout(function(){
     this.http_start();

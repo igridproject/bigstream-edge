@@ -24,7 +24,7 @@ function ControllerAPI(cfg)
 {
   this.config = cfg;
   this.conn = ConnCtx.create(this.config);
-  this.mem = this.conn.getMemstore()
+  this.mem = this.conn.getMemstore();
 
 }
 

@@ -8,6 +8,8 @@ var ConnCtx = ctx.getLib('lib/conn/connection-context');
 var CronList = ctx.getLib('lib/mems/cronlist');
 var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
 var EvenSub = ctx.getLib('lib/amqp/event-sub');
+var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
+var JobCaller = ctx.getLib('lib/bus/jobcaller');
 
 module.exports.create = function (cfg)
 {
@@ -20,8 +22,11 @@ function SchedulerService(cfg)
 
   this.conn = ConnCtx.create(this.config);
   this.mem = this.conn.getMemstore();
-  this.jobcaller = new QueueCaller({'url':amqp_cfg.url,'name':'bs_jobs_cmd'});
-  this.evs = new EvenSub({'url':amqp_cfg.url,'name':'bs_trigger_cmd'});
+  this.jobcaller = new JobCaller();
+
+  //this.jobcaller = new QueueCaller({'url':amqp_cfg.url,'name':'bs_jobs_cmd'});
+  //this.evs = new EvenSub({'url':amqp_cfg.url,'name':'bs_trigger_cmd'});
+  this.evs = new TriggerSignal();
 
   this.crons = CronList.create({'redis':this.mem});
   this.engine = [];
@@ -87,10 +92,10 @@ SchedulerService.prototype._callJob = function(cron)
 SchedulerService.prototype._start_controller = function ()
 {
   var self=this;
-  var topic = 'ctl.trigger.#';
-  self.evs.sub(topic,function(err,msg){
+
+  self.evs.sub(function(err,msg){
     if(err){
-      console.log('SCHEDULER:AMQP ERROR Restarting ...');
+      console.log('SCHEDULER:ERROR Restarting ...');
       setTimeout(function(){
         process.exit(1);
       },5000);
@@ -98,7 +103,7 @@ SchedulerService.prototype._start_controller = function ()
 
     if(!msg){return;}
 
-    var ctl = msg.data;
+    var ctl = msg;
     if(ctl.trigger_type != 'cron' && ctl.trigger_type != 'all')
     {
       return;

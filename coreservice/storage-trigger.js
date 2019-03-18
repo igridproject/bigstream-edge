@@ -1,12 +1,9 @@
-var schedule = require('node-schedule');
-
 var ctx = require('../context');
 var cfg = ctx.config;
 var amqp_cfg = ctx.config.amqp;
 
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
 var StorageEventList = ctx.getLib('lib/mems/storage-eventlist');
-var CronList = ctx.getLib('lib/mems/cronlist');
 var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
 var EvenSub = ctx.getLib('lib/amqp/event-sub');
 

@@ -19,7 +19,7 @@ if(m.read=="false" && m.write=="false")
 }else{
   if(m.read=="true"){ss.http_start();}
   if(m.write=="true"){
-    ss.amqp_start();
+    //ss.amqp_start();
     ss.ipc_start();
   }
 }

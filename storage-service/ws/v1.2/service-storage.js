@@ -108,7 +108,7 @@ function send_storage(caller,dc_meta,dc_data,storage_name,cb)
         }
       }
     }
-
+    
   caller.call(req,function(err,resp){
     if(!err && resp.status=='OK'){
       cb(null);

@@ -21,18 +21,19 @@ function perform_function(context,request,response){
   var data = (Array.isArray(request.data))?request.data:[request.data];
   var meta = request.meta;
 
-  var amqp_cfg = ctx.config.amqp;
+  //var amqp_cfg = ctx.config.amqp;
   var storage_name = param.storage_name;
 
   var caller = storagecaller;
 
+  /*
   if(param.channel!='ipc'){
     caller = new RPCCaller({
       url : amqp_cfg.url,
       name :'storage_request'
     });
   }
-
+  */
 
   var dc_meta = {
     "_jid" : job_id,

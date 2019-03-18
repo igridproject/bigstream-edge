@@ -24,6 +24,16 @@ QS.prototype.proc_enqueue = function (prm)
     self.gen_proc_queue.push(procq_item);
 }
 
+QS.prototype.proc_list = function ()
+{
+    var ret = []
+    this.gen_proc_queue.forEach((itm) => {
+        ret.push({'id':itm.proc_id});
+    });
+
+    return ret;
+}
+
 QS.prototype.job_enqueue = function (prm)
 {
     var self = this;
@@ -33,6 +43,7 @@ QS.prototype.job_enqueue = function (prm)
 
 QS.prototype.match = function (prm)
 {
+    var self = this;
     if(self.waiting_list.length > 0 && self.gen_proc_queue.length > 0 )
     {
         var job = self.waiting_list.shift();
@@ -41,4 +52,9 @@ QS.prototype.match = function (prm)
         return {'job' : job,'processor' : processor}
     }
     return null;
+}
+
+QS.prototype.flush_proc = function ()
+{
+    this.gen_proc_queue = [];
 }

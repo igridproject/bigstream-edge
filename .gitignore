@@ -6,3 +6,4 @@ conf/amqp.json
 conf/memstore.json
 conf/storage.json
 .node-persist
+data

@@ -20,6 +20,7 @@ JM.prototype.start = function ()
 {
     this.ipc_jobq_start();
     this.ipc_jobservice_start();
+    console.log('JobMaster Started');
 }
 
 JM.prototype.ipc_jobservice_start = function ()
@@ -30,6 +31,7 @@ JM.prototype.ipc_jobservice_start = function ()
     self.jobipc=new RawIPC;
     self.jobipc.config.appspace = 'bslink.'
     self.jobipc.config.id = 'jobservice';
+    self.jobipc.config.silent = true;
     self.jobipc.config.retry= 1500;
 
     self.jobipc.serve(()=>{
@@ -38,15 +40,16 @@ JM.prototype.ipc_jobservice_start = function ()
         self.jobipc.server.on(
             'job.execute_request',
             function (msg,socket){
+                //console.log(msg);
                 if(valid_job_cmd(msg)){
                     self.qsch.job_enqueue({'cmd':msg});
-                    self.qsch.match();
+                    self.match();
                 }
             }
         )
 
     });
-
+    
     self.jobipc.server.start();
 }
 
@@ -58,6 +61,7 @@ JM.prototype.ipc_jobq_start = function ()
     self.msipc=new RawIPC;
     self.msipc.config.appspace = 'bslink.'
     self.msipc.config.id = 'jobq';
+    self.msipc.config.silent = true;
     self.msipc.config.retry= 1500;
 
     self.msipc.serve(()=>{
@@ -68,7 +72,7 @@ JM.prototype.ipc_jobq_start = function ()
             function (msg,socket){
                 if(valid_queue_request(msg)){
                     self.qsch.proc_enqueue({'msg':msg,'socket':socket});
-                    self.qsch.match();
+                    self.match();
                 }
             }
         );
@@ -77,10 +81,18 @@ JM.prototype.ipc_jobq_start = function ()
         self.msipc.server.on(
             'job.execute_request',
             function (msg,socket){
+                
                 if(valid_job_cmd(msg)){
                     self.qsch.job_enqueue({'cmd':msg});
-                    self.qsch.match();
+                    self.match();
                 }
+            }
+        );
+
+        self.msipc.server.on(
+            'socket.disconnected',
+            function(socket,destroyedSocketID){
+                self.requeue();
             }
         );
 
@@ -89,6 +101,18 @@ JM.prototype.ipc_jobq_start = function ()
     self.msipc.server.start();
 }
 
+
+JM.prototype.requeue = function ()
+{
+    var self = this ;
+    self.qsch.flush_proc();
+    self.msipc.server.broadcast(
+        'proc.requeue',
+        {
+            'id':self.msipc.config.id
+        }
+    );
+}
 
 JM.prototype.match = function () 
 {
