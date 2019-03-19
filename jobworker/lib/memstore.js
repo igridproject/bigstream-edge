@@ -1,4 +1,8 @@
-var redis = require('redis');
+var ctx = require('../../context');
+var ConnCtx = ctx.getLib('lib/conn/connection-context');
+
+
+var redis = ctx.getLib('lib/edge/bsmem');
 const PREFIX = 'bs:jobs';
 
 function memstore(conf){
@@ -7,7 +11,7 @@ function memstore(conf){
   if(conf.mem){
       this.mem = conf.mem;
   }else if(conf.conn){
-    this.mem = redis.createClient(conf.conn);
+    this.mem = ConnCtx.create(ctx.config).getMemstore();
   }
 }
 

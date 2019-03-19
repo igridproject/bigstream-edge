@@ -1,15 +1,11 @@
 {
-  "name": "node-bigstream",
-  "description": "",
-  "version": "0.0.1",
-  "main": "./bigstream.js",
-  "author": {
-    "name": "Kamron Aroonrua",
-    "email": "kamron.aroonrua@nectec.or.th"
-  },
-  "keywords": [],
-  "licenses": {
-    "type": "none"
+  "name": "bigstream-edge",
+  "version": "1.0.0",
+  "description": "BigStream Edge",
+  "main": "bigstream.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
   },
   "dependencies": {
     "amqplib": "^0.4.2",
@@ -23,12 +19,12 @@
     "express-jwt": "^5.3.1",
     "ioredis": "^2.5.0",
     "jsonwebtoken": "^8.2.2",
-    "microgear": "^0.8.1",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.0",
     "moment": "^2.17.1",
     "node-gyp": "^3.6.2",
-    "node-persist": "^2.0.7",
+    "node-ipc": "^9.1.1",
+    "node-persist": "^3.0.4",
     "node-schedule": "^1.2.0",
     "node-uuid": "^1.4.7",
     "object-hash": "^1.1.8",
@@ -40,5 +36,15 @@
     "request": "^2.79.0",
     "thunky": "^1.0.2",
     "tiny-worker": "^2.1.1"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.igridproject.info/bs/bigstream-edge.git"
+  },
+  "author": "iGridProject",
+  "license": "Apache-2.0"
 }

@@ -1,4 +1,5 @@
 var CONFIG_PATH = './conf/config';
+var _env = require('./env');
 
 module.exports.config = require(CONFIG_PATH);
 
@@ -17,9 +18,7 @@ module.exports.getPlugins = function(type,name)
   return require(path);
 }
 
-module.exports.sysenv = {
-
-}
+module.exports.env = _env;
 
 module.exports.getServiceUrl = function(port,opt)
 {
