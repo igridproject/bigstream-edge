@@ -7,3 +7,4 @@ conf/memstore.json
 conf/storage.json
 .node-persist
 data
+test
