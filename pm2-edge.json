@@ -1,5 +1,9 @@
 {
-  "apps" : [{
+  "apps" : [ 
+  {
+    "name"        : "bs.coreservices",
+    "script"      : "./serv-coreservices.js"
+  },{
     "name"        : "bs.storage.write",
     "script"      : "./serv-storage.js",
 	"args"		  : "--process-write"
@@ -10,18 +14,14 @@
 	"args"		  : "--process-read"
   },
   {
-    "name"        : "bs.devmaster",
-    "script"      : "./serv-devmaster.js"
-  },
-  {
     "name"        : "bs.jobmaster",
     "script"      : "./serv-jobmaster.js"
   },
   {
     "name"        : "bs.processor",
     "script"      : "./work-jobprocessor.js",
-	"exec_mode"   : "cluster",
-	"instances"   : 0
+	  "exec_mode"   : "cluster",
+	  "instances"   : 0
   },
   {
     "name"        : "bs.api.service",
