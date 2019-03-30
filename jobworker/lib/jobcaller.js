@@ -2,7 +2,7 @@
 
 function JobCaller (handle)
 {
-    this.processor = handle;
+    this.handle = handle;
 }
 
 JobCaller.prototype.send = function (msg)
