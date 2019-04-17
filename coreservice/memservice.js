@@ -17,16 +17,22 @@ var MS = function MemService (prm)
     
 }
 
-MS.prototype.start = function ()
+MS.prototype.start = function (prm)
 {
     var self = this;
-
-    async function init(prm)
+    var initcfg = {forgiveParseErrors:true};
+    if(ctx.config.memstore && ctx.config.memstore.dir)
     {
-        return await storage.init( {forgiveParseErrors: false} );
+        initcfg.dir = ctx.config.memstore.dir;
     }
 
-    init().then(()=>{
+
+    async function init(cfg)
+    {
+        return await storage.init(cfg);
+    }
+
+    init(initcfg).then(()=>{
         self.start_ipc();
         console.log('MemService Started');
     })
@@ -238,7 +244,7 @@ MS.prototype._persist_cmd = function (req,cb)
 
 }
 
-MS.prototype.init = async function (prm)
-{
-    return await storage.init( /* options ... */ );
-}
+// MS.prototype.init = async function (prm)
+// {
+//     return await storage.init( /* options ... */ );
+// }
