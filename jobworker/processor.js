@@ -108,6 +108,7 @@ JW.prototype.queue_request = function ()
 
 JW.prototype.call_job = function (msg)
 {
+    var self = this;
     if(self.jobipc)
     {
         self.jobipc.of.jobq.emit('job.execute_request',msg);
