@@ -1,12 +1,6 @@
-//NB-UDP
 var ctx = require('../../context');
-// var cfg = ctx.config;
-// var amqp_cfg = ctx.config.amqp;
 
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
-
-// var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
-// var EvenSub = ctx.getLib('lib/amqp/event-sub');
 
 var TriggerRegis = require('./lib/triggerregis');
 var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
@@ -15,7 +9,7 @@ var JobCaller = ctx.getLib('lib/bus/jobcaller');
 var dgram = require('dgram');
 var server = dgram.createSocket('udp4');
 
-var TRIGGER_TYPE = "nbudp";
+var TRIGGER_TYPE = "mqtt";
 
 var PORT = 19150;
 var HOST = '0.0.0.0';
@@ -31,10 +25,8 @@ function NBUdpTrigger(cfg)
 
   this.conn = ConnCtx.create(this.config);
   this.mem = this.conn.getMemstore();
-  // this.jobcaller = new QueueCaller({'url':amqp_cfg.url,'name':'bs_jobs_cmd'});
   this.jobcaller = new JobCaller();
   this.evs = new TriggerSignal();
-  // this.evs = new EvenSub({'url':amqp_cfg.url,'name':'bs_trigger_cmd'});
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
@@ -42,20 +34,20 @@ function NBUdpTrigger(cfg)
 
 NBUdpTrigger.prototype.start = function ()
 {
-  console.log('NBUDP_TRIGGER:Starting\t\t[OK]');
+  console.log('MQTT_TRIGGER:Starting\t\t[OK]');
   this._start_listener();
   this._start_controller();
 }
 
 NBUdpTrigger.prototype._start_listener = function ()
 {
-  console.log('NBUDP_TRIGGER:Starting Listener\t[OK]');
+  console.log('MQTT_TRIGGER:Starting Listener\t[OK]');
   var self = this;
   self.reset();
   self.reload();
 
   server.on('listening', function () {
-    console.log('NBUDP_TRIGGER:Listening\t[OK]');
+    console.log('MQTT_TRIGGER:Listening\t[OK]');
   });
 
   server.on('message', function (message, remote) {

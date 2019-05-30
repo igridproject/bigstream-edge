@@ -32,6 +32,10 @@
     "script"      : "./serv-coretrigger.js"
   },
   {
+    "name"        : "bs.trigger.nbudp",
+    "script"      : "./serv-nbudptrigger.js"
+  },
+  {
     "name"        : "bs.trigger.httplistener",
     "script"      : "./serv-httplistener.js"
   }]
