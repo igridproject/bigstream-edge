@@ -7,14 +7,14 @@ var bodyParser = require('body-parser');
 var cfg = ctx.config;
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
 var HttpACL = ctx.getLib('lib/mems/http-acl');
-var EvenPub = ctx.getLib('lib/amqp/event-pub');
-var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
-var EvenSub = ctx.getLib('lib/amqp/event-sub');
+// var EvenPub = ctx.getLib('lib/amqp/event-pub');
+// var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
+// var EvenSub = ctx.getLib('lib/amqp/event-sub');
 
 var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
 var JobCaller = ctx.getLib('lib/bus/jobcaller');
 
-const JOBCHANEL = 'bs_job_cmd';
+//const JOBCHANEL = 'bs_job_cmd';
 const API_PORT = 19180;
 
 module.exports.create = function(cfg)

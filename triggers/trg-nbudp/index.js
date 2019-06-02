@@ -1,13 +1,17 @@
 //NB-UDP
 var ctx = require('../../context');
-var cfg = ctx.config;
-var amqp_cfg = ctx.config.amqp;
+// var cfg = ctx.config;
+// var amqp_cfg = ctx.config.amqp;
 
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
-var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
-var EvenSub = ctx.getLib('lib/amqp/event-sub');
+
+// var QueueCaller = ctx.getLib('lib/amqp/queuecaller');
+// var EvenSub = ctx.getLib('lib/amqp/event-sub');
 
 var TriggerRegis = require('./lib/triggerregis');
+var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
+var JobCaller = ctx.getLib('lib/bus/jobcaller');
+
 var dgram = require('dgram');
 var server = dgram.createSocket('udp4');
 
@@ -27,10 +31,12 @@ function NBUdpTrigger(cfg)
 
   this.conn = ConnCtx.create(this.config);
   this.mem = this.conn.getMemstore();
-  this.jobcaller = new QueueCaller({'url':amqp_cfg.url,'name':'bs_jobs_cmd'});
-  this.evs = new EvenSub({'url':amqp_cfg.url,'name':'bs_trigger_cmd'});
+  // this.jobcaller = new QueueCaller({'url':amqp_cfg.url,'name':'bs_jobs_cmd'});
+  this.jobcaller = new JobCaller();
+  this.evs = new TriggerSignal();
+  // this.evs = new EvenSub({'url':amqp_cfg.url,'name':'bs_trigger_cmd'});
 
-  this.regis = TriggerRegis.create({'conn':this.config.memstore.url});
+  this.regis = TriggerRegis.create({'mem':this.mem});
 
 }
 
@@ -116,8 +122,8 @@ NBUdpTrigger.prototype._callJob = function(jobid,udpdata)
 NBUdpTrigger.prototype._start_controller = function ()
 {
   var self=this;
-  var topic = 'ctl.trigger.#';
-  self.evs.sub(topic,function(err,msg){
+  //var topic = 'ctl.trigger.#';
+  self.evs.sub(function(err,msg){
     if(err){
       console.log('NBUDP_TRIGGER:AMQP ERROR Restarting ...');
       setTimeout(function(){
@@ -127,7 +133,7 @@ NBUdpTrigger.prototype._start_controller = function ()
 
     if(!msg){return;}
 
-    var ctl = msg.data;
+    var ctl = msg;
     if(ctl.trigger_type != TRIGGER_TYPE && ctl.trigger_type != 'all')
     {
       return;
