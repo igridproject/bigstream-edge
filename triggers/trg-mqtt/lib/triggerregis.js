@@ -1,6 +1,6 @@
 var Redis = require('redis');
 const KEYS = 'bs:regis:triggers';
-const TRIGGER_TYPE = "nbudp";
+const TRIGGER_TYPE = "mqtt";
 
 module.exports.create = function(cfg)
 {
@@ -10,7 +10,7 @@ module.exports.create = function(cfg)
 module.exports.mkRegis = mkRegis
 function mkRegis(trigger,opt)
 {
-    if(!trigger.keyname)
+    if(!trigger.topic)
     {
         return null;
     }
@@ -19,7 +19,7 @@ function mkRegis(trigger,opt)
 
     var a = {
         'vo':vo,
-        'keyname' : trigger.keyname,
+        'topic' : trigger.topic,
         'jobid' : trigger.job_id
     }
     if(opt){a.opt = opt}
@@ -48,7 +48,7 @@ TriggerRegister.prototype.add = function(rg)
     if(!rg){return;}
     var found = false;
     this.regis.forEach( function (val) {
-        if(val.vo == rg.vo && val.keyname == rg.keyname && val.jobid == rg.jobid){
+        if(val.vo == rg.vo && val.topic == rg.topic && val.jobid == rg.jobid){
             found = true;
         }
     });
@@ -87,15 +87,26 @@ TriggerRegister.prototype.update = function(cb)
   });
 }
 
-TriggerRegister.prototype.findJob= function(kname)
+TriggerRegister.prototype.findJob= function(topic)
 {
   var jobs = [];
   this.regis.forEach( function (val) {
-    var fullkey = (val.vo == '')?val.keyname:val.vo + ':' + val.keyname;
-    if(fullkey == kname){
+    if(val.topic == topic){
       jobs.push(val);
     }
   });
 
   return jobs;
+}
+
+TriggerRegister.prototype.listTopic= function()
+{
+  var tops = [];
+  this.regis.forEach( function (val) {
+    if(tops.indexOf(val.topic)){
+      tops.push(val.topic);
+    }
+  });
+
+  return tops;
 }
