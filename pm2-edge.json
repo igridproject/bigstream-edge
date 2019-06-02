@@ -21,7 +21,7 @@
     "name"        : "bs.processor",
     "script"      : "./work-jobprocessor.js",
 	  "exec_mode"   : "cluster",
-	  "instances"   : 0
+	  "instances"   : 2
   },
   {
     "name"        : "bs.api.service",
@@ -32,11 +32,15 @@
     "script"      : "./serv-coretrigger.js"
   },
   {
+    "name"        : "bs.trigger.httplistener",
+    "script"      : "./serv-httplistener.js"
+  },
+  {
     "name"        : "bs.trigger.nbudp",
     "script"      : "./serv-nbudptrigger.js"
   },
   {
-    "name"        : "bs.trigger.httplistener",
-    "script"      : "./serv-httplistener.js"
+    "name"        : "bs.trigger.mqtt",
+    "script"      : "./serv-mqtttrigger.js"
   }]
 }

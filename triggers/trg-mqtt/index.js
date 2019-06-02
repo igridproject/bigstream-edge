@@ -1,4 +1,5 @@
 var ctx = require('../../context');
+var mqtt = require('mqtt')
 
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
 
@@ -6,20 +7,16 @@ var TriggerRegis = require('./lib/triggerregis');
 var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
 var JobCaller = ctx.getLib('lib/bus/jobcaller');
 
-var dgram = require('dgram');
-var server = dgram.createSocket('udp4');
 
 var TRIGGER_TYPE = "mqtt";
 
-var PORT = 19150;
-var HOST = '0.0.0.0';
 
 module.exports.create = function (cfg)
 {
-  return new NBUdpTrigger(cfg);
+  return new MqttTrigger(cfg);
 }
 
-function NBUdpTrigger(cfg)
+function MqttTrigger(cfg)
 {
   this.config = cfg;
 
@@ -30,72 +27,73 @@ function NBUdpTrigger(cfg)
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
+  this.broker_url = "mqtt://127.0.0.1";
+
 }
 
-NBUdpTrigger.prototype.start = function ()
+MqttTrigger.prototype.start = function ()
 {
   console.log('MQTT_TRIGGER:Starting\t\t[OK]');
   this._start_listener();
   this._start_controller();
 }
 
-NBUdpTrigger.prototype._start_listener = function ()
+MqttTrigger.prototype._start_listener = function ()
 {
   console.log('MQTT_TRIGGER:Starting Listener\t[OK]');
   var self = this;
   self.reset();
   self.reload();
 
-  server.on('listening', function () {
-    console.log('MQTT_TRIGGER:Listening\t[OK]');
+  self.client = mqtt.connect(self.broker_url);
+
+  self.client.on('connect',function (){
+    self.client.subscribe('#',function (err) {
+      if (!err) {
+
+      }
+    });
   });
 
-  server.on('message', function (message, remote) {
+  self.client.on('message',function (topic, message) {
+
     if(!message){return;}
 
-    var udpdata = message.toString();
-    var datachunk = udpdata.split(',');
-    if(datachunk.length>1)
-    {
-      var kname = datachunk[0];
-      var jobs = self.regis.findJob(kname);
-      jobs.forEach(function(item){
-        self._callJob(item.jobid,udpdata);
-      });
-    }
+    var mqttdata = message.toString();
+    var jobs = self.regis.findJob(topic);
+
+    jobs.forEach(function(item){
+      self._callJob(item.jobid,mqttdata);
+    });
+
   });
 
-  server.bind(PORT, HOST);
 }
 
-NBUdpTrigger.prototype.reload = function ()
+MqttTrigger.prototype.reload = function ()
 {
+  var self = this;
   this.regis.update(function(err){
     if(!err){
-      console.log('NBUDP_TRIGGER:REG Update\t\t[OK]');
+      console.log('MQTT_TRIGGER:REG Update\t\t[OK]');
     }else{
-      console.log('NBUDP_TRIGGER:REG Update\t\t[ERR]');
+      console.log('MQTT_TRIGGER:REG Update\t\t[ERR]');
     }
   });
 }
 
-NBUdpTrigger.prototype.reset = function ()
+MqttTrigger.prototype.reset = function ()
 {
   this.regis.clean();
 }
 
-NBUdpTrigger.prototype._callJob = function(jobid,udpdata)
+MqttTrigger.prototype._callJob = function(jobid,mqttdata)
 {
-  var udpmsg = udpdata.substring(udpdata.indexOf(',')+1);
-  var trigger_data = {
-    'object_type' : 'nbudp_data',
-    'udpdata' : udpdata,
-    'message' : udpmsg
-  }
+  var trigger_data = mqttdata
 
   var cmd = {
     'object_type':'job_execute',
-    'source' : 'nbudp_trigger',
+    'source' : 'mqtt_trigger',
     'jobId' : jobid,
     'option' : {'exe_level':'secondary'},
     'input_data' : {
@@ -111,13 +109,13 @@ NBUdpTrigger.prototype._callJob = function(jobid,udpdata)
   this.jobcaller.send(cmd);
 }
 
-NBUdpTrigger.prototype._start_controller = function ()
+MqttTrigger.prototype._start_controller = function ()
 {
   var self=this;
-  //var topic = 'ctl.trigger.#';
+
   self.evs.sub(function(err,msg){
     if(err){
-      console.log('NBUDP_TRIGGER:AMQP ERROR Restarting ...');
+      console.log('MQTT_TRIGGER:ERROR Restarting ...');
       setTimeout(function(){
         process.exit(1);
       },5000);
@@ -133,7 +131,7 @@ NBUdpTrigger.prototype._start_controller = function ()
 
     if(ctl.cmd == 'reload')
     {
-      console.log('NBUDP_TRIGGER:CMD Reload\t\t[OK]');
+      console.log('MQTT_TRIGGER:CMD Reload\t\t[OK]');
       self.reload();
     }
 
