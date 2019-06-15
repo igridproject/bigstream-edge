@@ -233,7 +233,7 @@ MS.prototype._persist_cmd = function (req,cb)
             var ret = [];
             if(v){
                 v.forEach((k) => {
-                    if(minimatch(k,key)){ret.push(k);}
+                    if(k && minimatch(k,key)){ret.push(k);}
                 });
             }
 
