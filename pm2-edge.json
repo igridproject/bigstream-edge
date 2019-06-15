@@ -20,6 +20,8 @@
   {
     "name"        : "bs.processor",
     "script"      : "./work-jobprocessor.js",
+    "output"      : "/dev/null",
+    "error"      : "/dev/null",
 	  "exec_mode"   : "cluster",
 	  "instances"   : 2
   },
