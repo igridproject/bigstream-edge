@@ -1,19 +1,23 @@
-const ModbusRTU = require("modbus-serial");
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+var ModbusRTU = require("modbus-serial");
 
-module.exports.create = function(prm)
-{
-  return new PollingTask(prm);
-}
 
 function PollingTask(prm)
 {
+    EventEmitter.call(this);
+
     this.client = new ModbusRTU();
 
     this.name = prm.name;
     this.observ_list = [];
     this.init_time = 0;
 
+    this.modbus_host = prm.host;
+    this.modbus_port = prm.port;
+
 }
+util.inherits(PollingTask, EventEmitter);
 
 PollingTask.prototype.addObserv = function (obs)
 {
@@ -43,3 +47,5 @@ PollingTask.prototype.close = function ()
 {
 
 }
+
+module.exports = PollingTask;
