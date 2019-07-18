@@ -1,6 +1,7 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 var ModbusRTU = require("modbus-serial");
+var hash = require('object-hash');
 var async = require('async');
 
 function PollingTask(prm)
@@ -52,7 +53,11 @@ PollingTask.prototype.run = function ()
         async.whilst(
             function () { return self.running; },
             function (next) {
-                
+                var item = self.observ_list[i]
+                self.client.setID(item.param.client_id);
+                self._modfunction(item.param.function_code,item.param.address,item.param.register_length,(err,data)=>{
+
+                });
                 
                 next();
             },
