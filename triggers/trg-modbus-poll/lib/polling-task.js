@@ -31,13 +31,19 @@ PollingTask.prototype.addObserv = function (obs)
                 "address":1,
                 "register_length":10,
                 "function_code":"FC3",
+                "datatype":"hex",
                 "delay":500
             }
-            "_keyflag":"",
+            "_hashkey":"",
             "_chktime":1562840698946
         }
     */
     this.observ_list.push(obs);
+}
+
+PollingTask.prototype.clear = function ()
+{
+  this.observ_list = [];
 }
 
 PollingTask.prototype.run = function ()
@@ -53,13 +59,42 @@ PollingTask.prototype.run = function ()
         async.whilst(
             function () { return self.running; },
             function (next) {
-                var item = self.observ_list[i]
-                self.client.setID(item.param.client_id);
-                self._modfunction(item.param.function_code,item.param.address,item.param.register_length,(err,data)=>{
+                var obs = self.observ_list[idx];
+                idx++;
+                if(idx>=self.observ_list.length){idx=0;}
 
-                });
-                
-                next();
+                var curtime = (new Date()).getTime();
+                if(!obs._chktime){obs._chktime=0;}
+                if(curtime - obs._chktime > obs.param.delay){
+                  obs._chktime = curtime;
+                  self.client.setID(obs.param.client_id);
+                  self._modfunction(obs.param.function_code,obs.param.address,obs.param.register_length,(err,data)=>{
+                    var hashdata = hash(data.buffer);
+                    if(!obs._hashkey){obs._hashkey = hashdata;}
+                    if(obs._hashkey !== hashdata){
+                      var body = {
+                        "address" : obs.param.address
+                        ,"length": obs.param.register_length
+                        ,"client_id" : obs.param.client_id
+                        ,"function_code": obs.param.function_code
+                        ,"value" : self._getValue(data.buffer,obs.param.datatype)
+                        ,"raw" : data
+                      }
+                      self.emit("datachange",{
+                        "obid": obs.obid,
+                        "data": body
+                      });
+                    }
+                    obs._hashkey = hashdata;
+                    setImmediate(() => {
+                      next()
+                    });
+                  });
+
+                }else{
+                  setImmediate(() => { next(); });
+                }
+
             },
             function (err, res) {
     
@@ -102,6 +137,45 @@ PollingTask.prototype._modfunction = function (code,addr,length,cb)
   }
 
   return ret;
+}
+
+PollingTask.prototype._getValue = function (buf,dt)
+{
+  var ret = null;
+    switch(dt) {
+      case "int":
+        ret = buf.readInt32BE();
+        break;
+      case "uint32":
+        ret = buf.readUInt32BE();
+        break;
+      case "uint16":
+        ret = buf.readUInt16BE();
+        break;
+      case "int16":
+        ret = buf.readInt16BE();
+        break;
+      case "int32":
+        ret = buf.readInt32BE();
+        break;
+      case "double":
+        ret = buf.readDoubleBE();
+        break;
+      case "float":
+        ret = buf.readFloatBE();
+        break;
+      case "buffer":
+        ret = buf;
+        break;
+      case "hex":
+        ret = buf.toString('hex');
+        break;
+      default:
+        ret = buf;
+    }
+
+    return ret;
+
 }
 
 module.exports = PollingTask;
