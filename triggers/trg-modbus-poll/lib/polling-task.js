@@ -81,6 +81,7 @@ PollingTask.prototype.run = function ()
                         ,"raw" : data
                       }
                       self.emit("datachange",{
+                        "conn_name":self.name,
                         "obid": obs.obid,
                         "data": body
                       });

@@ -1,6 +1,6 @@
 var Redis = require('redis');
 const KEYS = 'bs:regis:triggers';
-const TRIGGER_TYPE = "mqtt";
+const TRIGGER_TYPE = "modbus-poll";
 
 module.exports.create = function(cfg)
 {
@@ -10,7 +10,7 @@ module.exports.create = function(cfg)
 module.exports.mkRegis = mkRegis
 function mkRegis(trigger,opt)
 {
-    if(!trigger.topic)
+    if(!trigger.conn)
     {
         return null;
     }
@@ -19,7 +19,13 @@ function mkRegis(trigger,opt)
 
     var a = {
         'vo':vo,
-        'topic' : trigger.topic,
+        'conn' : trigger.conn,
+        'client_id':trigger.client_id,
+        'address':trigger.address,
+        'register_length':trigger.register_length,
+        'function_code':trigger.function_code,
+        'datatype':trigger.data_type,
+        'delay':trigger.delay,
         'jobid' : trigger.job_id
     }
     if(opt){a.opt = opt}
@@ -55,6 +61,13 @@ TriggerRegister.prototype.add = function(rg)
 
     if(!found){
         this.regis.push(rg);
+    }
+
+    function valid(rg)
+    {
+      var ret=true;
+      if(typeof rg.conn != 'object'){return false;}
+      //if(typeof rg.conn.host != 'string' || )
     }
 }
 

@@ -7,16 +7,17 @@ var TriggerRegis = require('./lib/triggerregis');
 var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
 var JobCaller = ctx.getLib('lib/bus/jobcaller');
 
+var PollingTask = require('./lib/polling-task');
 
-var TRIGGER_TYPE = "mqtt";
+var TRIGGER_TYPE = "modbus_poll";
 
 
 module.exports.create = function (cfg)
 {
-  return new MqttTrigger(cfg);
+  return new MbTrigger(cfg);
 }
 
-function MqttTrigger(cfg)
+function MbTrigger(cfg)
 {
   this.config = cfg;
 
@@ -27,20 +28,21 @@ function MqttTrigger(cfg)
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
+  this.conn_list = [];
   this.broker_url = "mqtt://127.0.0.1";
 
 }
 
-MqttTrigger.prototype.start = function ()
+MbTrigger.prototype.start = function ()
 {
-  console.log('MQTT_TRIGGER:Starting\t\t[OK]');
+  console.log('MBPoll_TRIGGER:Starting\t\t[OK]');
   this._start_listener();
   this._start_controller();
 }
 
-MqttTrigger.prototype._start_listener = function ()
+MbTrigger.prototype._start_listener = function ()
 {
-  console.log('MQTT_TRIGGER:Starting Listener\t[OK]');
+  console.log('MBPoll_TRIGGER:Starting Listener\t[OK]');
   var self = this;
   self.reset();
   self.reload();
@@ -70,30 +72,30 @@ MqttTrigger.prototype._start_listener = function ()
 
 }
 
-MqttTrigger.prototype.reload = function ()
+MbTrigger.prototype.reload = function ()
 {
   var self = this;
   this.regis.update(function(err){
     if(!err){
-      console.log('MQTT_TRIGGER:REG Update\t\t[OK]');
+      console.log('MBPoll_TRIGGER:REG Update\t\t[OK]');
     }else{
-      console.log('MQTT_TRIGGER:REG Update\t\t[ERR]');
+      console.log('MBPoll_TRIGGER:REG Update\t\t[ERR]');
     }
   });
 }
 
-MqttTrigger.prototype.reset = function ()
+MbTrigger.prototype.reset = function ()
 {
   this.regis.clean();
 }
 
-MqttTrigger.prototype._callJob = function(jobid,mqttdata)
+MbTrigger.prototype._callJob = function(jobid,mbdata)
 {
-  var trigger_data = mqttdata
+  var trigger_data = mbdata
 
   var cmd = {
     'object_type':'job_execute',
-    'source' : 'mqtt_trigger',
+    'source' : 'mobbus-poll_trigger',
     'jobId' : jobid,
     'option' : {'exe_level':'secondary'},
     'input_data' : {
@@ -109,13 +111,13 @@ MqttTrigger.prototype._callJob = function(jobid,mqttdata)
   this.jobcaller.send(cmd);
 }
 
-MqttTrigger.prototype._start_controller = function ()
+MbTrigger.prototype._start_controller = function ()
 {
   var self=this;
 
   self.evs.sub(function(err,msg){
     if(err){
-      console.log('MQTT_TRIGGER:ERROR Restarting ...');
+      console.log('MBPoll_TRIGGER:ERROR Restarting ...');
       setTimeout(function(){
         process.exit(1);
       },5000);
@@ -131,7 +133,7 @@ MqttTrigger.prototype._start_controller = function ()
 
     if(ctl.cmd == 'reload')
     {
-      console.log('MQTT_TRIGGER:CMD Reload\t\t[OK]');
+      console.log('MBPoll_TRIGGER:CMD Reload\t\t[OK]');
       self.reload();
     }
 
