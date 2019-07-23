@@ -3,6 +3,7 @@ var EventEmitter = require('events').EventEmitter;
 var ModbusRTU = require("modbus-serial");
 var hash = require('object-hash');
 var async = require('async');
+var url = require('url');
 
 function PollingTask(prm)
 {
@@ -17,6 +18,14 @@ function PollingTask(prm)
 
     this.modbus_host = prm.host;
     this.modbus_port = prm.port;
+
+    if(prm.url){
+      var ourl = url.parse(prm.url);
+      if(ourl.protocol == 'tcp:'){
+        this.modbus_host = ourl.hostname;
+        this.modbus_port = ourl.port;
+      }
+    }
 
 }
 util.inherits(PollingTask, EventEmitter);
@@ -106,12 +115,12 @@ PollingTask.prototype.run = function ()
 
 }
 
-PollingTask.prototype.close = function ()
+PollingTask.prototype.close = function (cb)
 {
     self.running=false;
 
     if(self.client.isOpen()){
-        self.client.close();
+        self.client.close(cb);
     }
 }
 

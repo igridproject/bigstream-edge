@@ -1,7 +1,7 @@
 var ctx = require('../../context');
-var mqtt = require('mqtt')
-
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
+
+var async = require('async');
 
 var TriggerRegis = require('./lib/triggerregis');
 var TriggerSignal = ctx.getLib('lib/bus/trigger-signal');
@@ -9,7 +9,7 @@ var JobCaller = ctx.getLib('lib/bus/jobcaller');
 
 var PollingTask = require('./lib/polling-task');
 
-var TRIGGER_TYPE = "modbus_poll";
+var TRIGGER_TYPE = "modbus-poll";
 
 
 module.exports.create = function (cfg)
@@ -28,8 +28,7 @@ function MbTrigger(cfg)
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
-  this.conn_list = [];
-  this.broker_url = "mqtt://127.0.0.1";
+  this.conn_list = {};
 
 }
 
@@ -46,30 +45,7 @@ MbTrigger.prototype._start_listener = function ()
   var self = this;
   self.reset();
   self.reload();
-
-  self.client = mqtt.connect(self.broker_url);
-
-  self.client.on('connect',function (){
-    self.client.subscribe('#',function (err) {
-      if (!err) {
-
-      }
-    });
-  });
-
-  self.client.on('message',function (topic, message) {
-
-    if(!message){return;}
-
-    var mqttdata = message.toString();
-    var jobs = self.regis.findJob(topic);
-
-    jobs.forEach(function(item){
-      self._callJob(item.jobid,mqttdata);
-    });
-
-  });
-
+    // self._callJob(item.jobid,mqttdata);
 }
 
 MbTrigger.prototype.reload = function ()
@@ -78,20 +54,64 @@ MbTrigger.prototype.reload = function ()
   this.regis.update(function(err){
     if(!err){
       console.log('MBPoll_TRIGGER:REG Update\t\t[OK]');
+
+      var regs = self.regis.getRegis();
+      console.log(regs)
+      regs.forEach((e)=>{
+        if(!self.conn_list[e.conn.key]){
+          self.conn_list[e.conn.key] = new PollingTask({
+              'name': e.conn.key,
+              'url' : e.conn.url
+          });
+        }
+
+        self.conn_list[e.conn.key].addObserv({
+            "obid":e.jobid,
+            "param":{
+                "client_id":e.client_id,
+                "address":e.address,
+                "register_length":e.register_length,
+                "function_code":e.function_code,
+                "datatype":e.data_type,
+                "delay":e.delay
+            }
+        });
+
+      });
+
+      //Starting
+      Object.values(self.conn_list).forEach((tsk)=>{
+        tsk.on('datachange',self._callJob);
+        tsk.run();
+      });
     }else{
       console.log('MBPoll_TRIGGER:REG Update\t\t[ERR]');
     }
+
   });
+
+
 }
 
 MbTrigger.prototype.reset = function ()
 {
   this.regis.clean();
+  var clist = Object.values(this.conn_list);
+  this.conn_list = {};
+  async.each(clist,(task,callback)=>{
+    task.close((err)=>{
+      callback();
+    });
+  },(err)=>{
+    clist=[];
+  });
 }
 
-MbTrigger.prototype._callJob = function(jobid,mbdata)
+MbTrigger.prototype._callJob = function(dat)
 {
-  var trigger_data = mbdata
+
+  var jobid = dat.obid;
+  var trigger_data = dat.data;
 
   var cmd = {
     'object_type':'job_execute',
@@ -134,6 +154,7 @@ MbTrigger.prototype._start_controller = function ()
     if(ctl.cmd == 'reload')
     {
       console.log('MBPoll_TRIGGER:CMD Reload\t\t[OK]');
+      self.reset();
       self.reload();
     }
 

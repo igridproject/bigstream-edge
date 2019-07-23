@@ -1,4 +1,6 @@
 var Redis = require('redis');
+var hash = require('object-hash');
+var url = require('url');
 const KEYS = 'bs:regis:triggers';
 const TRIGGER_TYPE = "modbus-poll";
 
@@ -19,15 +21,20 @@ function mkRegis(trigger,opt)
 
     var a = {
         'vo':vo,
-        'conn' : trigger.conn,
-        'client_id':trigger.client_id,
-        'address':trigger.address,
-        'register_length':trigger.register_length,
-        'function_code':trigger.function_code,
-        'datatype':trigger.data_type,
-        'delay':trigger.delay,
+        'client_id':0,
+        'address':0,
+        'register_length':trigger.register_length || 1,
+        'function_code':trigger.function_code || 'FC1',
+        'datatype':trigger.data_type || 'hex',
+        'delay': 500,
         'jobid' : trigger.job_id
     }
+    if(typeof trigger.client_id == 'number'){a.client_id=trigger.client_id;}
+    if(typeof trigger.delay == 'number'){a.delay==trigger.delay;}
+    if(typeof trigger.address == 'number'){a.address == trigger.address;}
+
+    a.conn = mkConn(trigger.conn);
+
     if(opt){a.opt = opt}
     return a;
 }
@@ -35,15 +42,24 @@ function mkRegis(trigger,opt)
 function mkConn(prm,opt)
 {
     var conn = {
-      'type':'tcp',
-      'host' : '127.0.0.1',
-      'port' : 502,
-      'url' : 'tcp://127.0.0.1:502'
-    }  
+      'url' : 'tcp://127.0.0.1:502',
+      'name' : ''
+    } 
 
+    if(typeof prm.url == 'string'){conn.url = prm.url;}
+    if(typeof prm.name == 'string'){conn.name=prm.name;}
 
+    var o = url.parse(conn.url);
+    conn.key = hash(conn.name + '_' + o.href);
 
-    return a;
+    if(o.protocol == 'tcp:' && o.host && o.port){
+      conn.host = o.host;
+      conn.port = o.port;
+    }else{
+      conn = null;
+    }
+
+    return conn;
 }
 
 function TriggerRegister(cfg)
@@ -66,23 +82,9 @@ function TriggerRegister(cfg)
 TriggerRegister.prototype.add = function(rg)
 {
     if(!rg){return;}
-    var found = false;
-    this.regis.forEach( function (val) {
-        if(val.vo == rg.vo && val.topic == rg.topic && val.jobid == rg.jobid){
-            found = true;
-        }
-    });
 
-    if(!found){
-        this.regis.push(rg);
-    }
+    this.regis.push(rg);
 
-    function valid(rg)
-    {
-      var ret=true;
-      if(typeof rg.conn != 'object'){return false;}
-      //if(typeof rg.conn.host != 'string' || )
-    }
 }
 
 TriggerRegister.prototype.clean = function()
@@ -114,26 +116,7 @@ TriggerRegister.prototype.update = function(cb)
   });
 }
 
-TriggerRegister.prototype.findJob= function(topic)
+TriggerRegister.prototype.getRegis = function()
 {
-  var jobs = [];
-  this.regis.forEach( function (val) {
-    if(val.topic == topic){
-      jobs.push(val);
-    }
-  });
-
-  return jobs;
-}
-
-TriggerRegister.prototype.listTopic= function()
-{
-  var tops = [];
-  this.regis.forEach( function (val) {
-    if(tops.indexOf(val.topic)){
-      tops.push(val.topic);
-    }
-  });
-
-  return tops;
+  return this.regis;
 }
