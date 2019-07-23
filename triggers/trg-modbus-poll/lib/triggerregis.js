@@ -32,6 +32,20 @@ function mkRegis(trigger,opt)
     return a;
 }
 
+function mkConn(prm,opt)
+{
+    var conn = {
+      'type':'tcp',
+      'host' : '127.0.0.1',
+      'port' : 502,
+      'url' : 'tcp://127.0.0.1:502'
+    }  
+
+
+
+    return a;
+}
+
 function TriggerRegister(cfg)
 {
   this.config = cfg;
