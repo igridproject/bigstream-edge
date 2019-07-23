@@ -14,24 +14,26 @@ function mkRegis(trigger,opt)
 {
     if(!trigger.conn)
     {
-        return null;
+        trigger.conn = {};
     }
+
     var vo = trigger.vo || '';
     if(vo=='$'){vo=''}
 
     var a = {
         'vo':vo,
-        'client_id':0,
+        'client_id':1,
         'address':0,
         'register_length':trigger.register_length || 1,
         'function_code':trigger.function_code || 'FC1',
-        'datatype':trigger.data_type || 'hex',
+        'data_type':trigger.data_type || 'hex',
         'delay': 500,
         'jobid' : trigger.job_id
     }
-    if(typeof trigger.client_id == 'number'){a.client_id=trigger.client_id;}
-    if(typeof trigger.delay == 'number'){a.delay==trigger.delay;}
-    if(typeof trigger.address == 'number'){a.address == trigger.address;}
+
+    a.client_id = (parseInt(trigger.client_id).toString() != 'NaN')?parseInt(trigger.client_id):1;
+    a.address = (parseInt(trigger.address).toString() != 'NaN')?parseInt(trigger.address):0;
+    a.delay = (parseInt(trigger.delay).toString() != 'NaN')?parseInt(trigger.delay):500;
 
     a.conn = mkConn(trigger.conn);
 

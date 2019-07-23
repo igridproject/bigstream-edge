@@ -80,7 +80,7 @@ PollingTask.prototype.run = function ()
                   self._modfunction(obs.param.function_code,obs.param.address,obs.param.register_length,(err,data)=>{
                     var hashdata = hash(data.buffer);
                     if(!obs._hashkey){obs._hashkey = hashdata;}
-                    if(obs._hashkey !== hashdata){
+                    if(obs._hashkey != hashdata){
                       var body = {
                         "address" : obs.param.address
                         ,"length": obs.param.register_length
@@ -107,7 +107,7 @@ PollingTask.prototype.run = function ()
 
             },
             function (err, res) {
-    
+              self.client.close();
             }
         );
 
@@ -117,9 +117,10 @@ PollingTask.prototype.run = function ()
 
 PollingTask.prototype.close = function (cb)
 {
+    var self=this;
     self.running=false;
 
-    if(self.client.isOpen()){
+    if(self.client.isOpen){
         self.client.close(cb);
     }
 }

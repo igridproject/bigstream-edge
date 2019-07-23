@@ -56,7 +56,7 @@ MbTrigger.prototype.reload = function ()
       console.log('MBPoll_TRIGGER:REG Update\t\t[OK]');
 
       var regs = self.regis.getRegis();
-      console.log(regs)
+      //console.log(regs)
       regs.forEach((e)=>{
         if(!self.conn_list[e.conn.key]){
           self.conn_list[e.conn.key] = new PollingTask({
@@ -81,7 +81,9 @@ MbTrigger.prototype.reload = function ()
 
       //Starting
       Object.values(self.conn_list).forEach((tsk)=>{
-        tsk.on('datachange',self._callJob);
+        tsk.on('datachange',(dat)=>{
+          self._callJob(dat.obid,dat.data);
+        });
         tsk.run();
       });
     }else{
@@ -107,11 +109,10 @@ MbTrigger.prototype.reset = function ()
   });
 }
 
-MbTrigger.prototype._callJob = function(dat)
+MbTrigger.prototype._callJob = function(jobid,dat)
 {
 
-  var jobid = dat.obid;
-  var trigger_data = dat.data;
+  var trigger_data = dat;
 
   var cmd = {
     'object_type':'job_execute',
