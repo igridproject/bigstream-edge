@@ -84,6 +84,11 @@ MbTrigger.prototype.reload = function ()
         tsk.on('datachange',(dat)=>{
           self._callJob(dat.obid,dat.data);
         });
+
+        tsk.on('conn_error',()=>{
+          setTimeout(()=>{ if(!tsk.running){tsk.run();} },1000)
+        });
+
         tsk.run();
       });
     }else{

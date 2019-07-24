@@ -63,7 +63,10 @@ PollingTask.prototype.run = function ()
     self.running = true;
     self.client.connectTCP(self.modbus_host, { port: self.modbus_port },loop);
     function loop(err){
-        if(err){self.running=false;}
+        if(err){
+          self.running=false;
+          self.emit("conn_error",{});
+        }
 
         async.whilst(
             function () { return self.running; },
@@ -78,27 +81,33 @@ PollingTask.prototype.run = function ()
                   obs._chktime = curtime;
                   self.client.setID(obs.param.client_id);
                   self._modfunction(obs.param.function_code,obs.param.address,obs.param.register_length,(err,data)=>{
-                    var hashdata = hash(data.buffer);
-                    if(!obs._hashkey){obs._hashkey = hashdata;}
-                    if(obs._hashkey != hashdata){
-                      var body = {
-                        "address" : obs.param.address
-                        ,"length": obs.param.register_length
-                        ,"client_id" : obs.param.client_id
-                        ,"function_code": obs.param.function_code
-                        ,"value" : self._getValue(data.buffer,obs.param.datatype)
-                        ,"raw" : data
+                    
+                    if(!err){
+                      var hashdata = hash(data.buffer);
+                      if(!obs._hashkey){obs._hashkey = hashdata;}
+                      if(obs._hashkey != hashdata){
+                        var body = {
+                          "address" : obs.param.address
+                          ,"length": obs.param.register_length
+                          ,"client_id" : obs.param.client_id
+                          ,"function_code": obs.param.function_code
+                          ,"value" : self._getValue(data.buffer,obs.param.datatype)
+                          ,"raw" : data
+                        }
+                        self.emit("datachange",{
+                          "conn_name":self.name,
+                          "obid": obs.obid,
+                          "data": body
+                        });
                       }
-                      self.emit("datachange",{
-                        "conn_name":self.name,
-                        "obid": obs.obid,
-                        "data": body
-                      });
+                      obs._hashkey = hashdata;
+                    }else{
+                      self.running=false;
+                      self.emit("conn_error",{});
                     }
-                    obs._hashkey = hashdata;
-                    setImmediate(() => {
-                      next()
-                    });
+
+                    setImmediate(() => {next()});
+
                   });
 
                 }else{
@@ -122,6 +131,8 @@ PollingTask.prototype.close = function (cb)
 
     if(self.client.isOpen){
         self.client.close(cb);
+    }else{
+      cb();
     }
 }
 
