@@ -142,15 +142,19 @@ PollingTask.prototype._modfunction = function (code,addr,length,cb)
   var self = this;
 
   switch(code) {
+    case "1":
     case "FC1":
       self.client.readCoils(addr,length,cb);
       break;
+    case "2":
     case "FC2":
       self.client.readDiscreteInputs(addr,length,cb);
       break;
+    case "3":
     case "FC3":
       self.client.readHoldingRegisters(addr,length,cb);
       break;
+    case "4":
     case "FC4":
       self.client.readInputRegisters(addr,length,cb);
       break;

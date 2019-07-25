@@ -44,5 +44,9 @@
   {
     "name"        : "bs.trigger.mqtt",
     "script"      : "./serv-mqtttrigger.js"
+  },
+  {
+    "name"        : "bs.trigger.modbus-poll",
+    "script"      : "./serv-mbtrigger.js"
   }]
 }

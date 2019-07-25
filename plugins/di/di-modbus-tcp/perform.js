@@ -42,16 +42,21 @@ function execute_function(context,response){
   function modbus_function(code,addr,length,cb)
   {
     var ret = null;
+
     switch(code) {
+      case "1":
       case "FC1":
         client.readCoils(addr,length,cb);
         break;
+      case "2":
       case "FC2":
         client.readDiscreteInputs(addr,length,cb);
         break;
+      case "3":
       case "FC3":
         client.readHoldingRegisters(addr,length,cb);
         break;
+      case "4":
       case "FC4":
         client.readInputRegisters(addr,length,cb);
         break;
