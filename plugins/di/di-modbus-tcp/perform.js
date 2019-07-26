@@ -27,7 +27,7 @@ function execute_function(context,response){
           ,"length": modbus_register_length
           ,"client_id" : modbus_client_id
           ,"function_code": modbus_function_code
-          ,"value" : getValue(data.buffer,modbus_datatype)
+          ,"value" : getValue(data,modbus_datatype)
           ,"raw" : data
         }
         response.success(body,output_type);
@@ -69,9 +69,10 @@ function execute_function(context,response){
 
 }
 
-function getValue(buf,dt)
+function getValue(raw,dt)
 {
   var ret = null;
+  var buf=raw.buffer;
     switch(dt) {
       case "int":
         ret = buf.readInt32BE();
@@ -99,6 +100,9 @@ function getValue(buf,dt)
         break;
       case "hex":
         ret = buf.toString('hex');
+        break;
+      case "array":
+        ret = raw.data;
         break;
       default:
         ret = buf;

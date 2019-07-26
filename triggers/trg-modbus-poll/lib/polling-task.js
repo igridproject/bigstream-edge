@@ -91,7 +91,7 @@ PollingTask.prototype.run = function ()
                           ,"length": obs.param.register_length
                           ,"client_id" : obs.param.client_id
                           ,"function_code": obs.param.function_code
-                          ,"value" : self._getValue(data.buffer,obs.param.datatype)
+                          ,"value" : self._getValue(data,obs.param.datatype)
                           ,"raw" : data
                         }
                         self.emit("datachange",{
@@ -111,7 +111,9 @@ PollingTask.prototype.run = function ()
                   });
 
                 }else{
-                  setImmediate(() => { next(); });
+                  var tout = 0;
+                  if(idx == self.observ_list.length-1){tout=1;}
+                  setTimeout(() => { next(); },tout);
                 }
 
             },
@@ -165,9 +167,10 @@ PollingTask.prototype._modfunction = function (code,addr,length,cb)
   return ret;
 }
 
-PollingTask.prototype._getValue = function (buf,dt)
+PollingTask.prototype._getValue = function (raw,dt)
 {
   var ret = null;
+  var buf=raw.buffer;
     switch(dt) {
       case "int":
         ret = buf.readInt32BE();
@@ -196,6 +199,9 @@ PollingTask.prototype._getValue = function (buf,dt)
       case "hex":
         ret = buf.toString('hex');
         break;
+      case "array":
+        ret = raw.data;
+        break;
       default:
         ret = buf;
     }
@@ -203,5 +209,6 @@ PollingTask.prototype._getValue = function (buf,dt)
     return ret;
 
 }
+
 
 module.exports = PollingTask;
