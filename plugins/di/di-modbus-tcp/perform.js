@@ -12,7 +12,7 @@ function execute_function(context,response){
   var modbus_function_code = (param.function_code)?param.function_code:"FC3"
 
   var modbus_datatype = (param.datatype)?param.datatype:"hex";
-
+  if(param.data_type){modbus_datatype=param.data_type;}
 
   var output_type = 'object';
 

@@ -26,10 +26,12 @@ function mkRegis(trigger,opt)
         'address':0,
         'register_length':trigger.register_length || 1,
         'function_code':trigger.function_code || 'FC1',
-        'data_type':trigger.data_type || 'hex',
+        'data_type':trigger.datatype || 'hex',
         'delay': 500,
         'jobid' : trigger.job_id
     }
+
+    if(trigger.data_type){a.data_type=trigger.data_type;}
 
     a.client_id = (parseInt(trigger.client_id).toString() != 'NaN')?parseInt(trigger.client_id):1;
     a.address = (parseInt(trigger.address).toString() != 'NaN')?parseInt(trigger.address):0;
