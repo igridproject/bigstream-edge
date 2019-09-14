@@ -1,4 +1,6 @@
 var Redis = require('redis');
+var MQTTPattern = require("mqtt-pattern");
+
 const KEYS = 'bs:regis:triggers';
 const TRIGGER_TYPE = "mqtt";
 
@@ -91,7 +93,7 @@ TriggerRegister.prototype.findJob= function(topic)
 {
   var jobs = [];
   this.regis.forEach( function (val) {
-    if(val.topic == topic){
+    if(MQTTPattern.matches(val.topic,topic)){
       jobs.push(val);
     }
   });
