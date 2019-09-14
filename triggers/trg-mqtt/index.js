@@ -1,5 +1,5 @@
 var ctx = require('../../context');
-var mqtt = require('mqtt')
+var mqtt = require('mqtt');
 
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
 
@@ -27,7 +27,7 @@ function MqttTrigger(cfg)
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
-  this.broker_url = "mqtt://127.0.0.1";
+  this.broker_url = "mqtt://192.168.0.99";
 
 }
 
@@ -59,8 +59,12 @@ MqttTrigger.prototype._start_listener = function ()
 
     if(!message){return;}
 
-    var mqttdata = message.toString();
     var jobs = self.regis.findJob(topic);
+    var mqttdata = {
+      "meta":{"topic":topic},
+      "data":message.toString()
+    }
+
 
     jobs.forEach(function(item){
       self._callJob(item.jobid,mqttdata);
@@ -96,12 +100,13 @@ MqttTrigger.prototype._callJob = function(jobid,mqttdata)
     'source' : 'mqtt_trigger',
     'jobId' : jobid,
     'option' : {'exe_level':'secondary'},
+    'input_meta' : mqttdata.meta,
     'input_data' : {
       'type' : 'bsdata',
       'value' : {
         'object_type':'bsdata',
         'data_type' : 'object',
-        'data' : trigger_data
+        'data' : mqttdata.data
       }
     }
   }
