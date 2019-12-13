@@ -36,7 +36,7 @@ var JW = function JobWorker (prm)
   this.acl_validator = ACLValidator.create(this.auth_cfg);
 
   //url not use for ipc lib
-  this.storagecaller = new SSCaller({'url':SS_URL,'name':'storage_request'});
+  this.storagecaller = new SSCaller({'url':SS_URL,'to':'storage_request'});
 }
 
 JW.prototype.start = function ()

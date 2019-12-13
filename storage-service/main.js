@@ -47,7 +47,7 @@ var SS = function StorageService(p_cfg)
 
     this.db = Db.create({'redis':this.mem,'repos_dir':storage_cfg.repository,'context':this.context});
     this.worker_pool = WorkerPool.create({'size':2});
-    this.storagecaller = new SSCaller({'url':SS_URL});
+    this.storagecaller = new SSCaller({'url':SS_URL,'to':'storage_request'});
 }
 
 SS.prototype.start = function()
@@ -144,7 +144,7 @@ SS.prototype.http_start = function()
   }));
 
   var context = ctx.getLib('lib/ws/http-context');
-  this.storagecaller = new SSCaller({'url':SS_URL});
+  this.storagecaller = new SSCaller({'url':SS_URL,'to':'storage_request'});
   this.acl_validator = ACLValidator.create(auth_cfg);
   this.worker_pool.initWorker();
   app.use(context.middleware({
