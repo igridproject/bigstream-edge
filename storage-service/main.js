@@ -1,12 +1,10 @@
 var ctx = require('../context');
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
 var rpcserver = ctx.getLib('lib/amqp/rpcserver');
-//var SSServer = ctx.getLib('lib/axon/rpcserver');
 var SSServer = ctx.getLib('lib/ipc/rpcserver');
 
 var Db = ctx.getLib('storage-service/lib/db');
 var WorkerPool = ctx.getLib('storage-service/lib/worker_pool');
-//var SSCaller = ctx.getLib('lib/axon/rpccaller');
 var SSCaller = ctx.getLib('lib/ipc/rpccaller');
 
 var Tokenizer = ctx.getLib('lib/auth/tokenizer');
