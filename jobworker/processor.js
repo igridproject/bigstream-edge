@@ -6,14 +6,13 @@ var cfg = ctx.config;
 
 var JobRegistry = ctx.getLib('lib/mems/job-registry');
 var ConnCtx = ctx.getLib('lib/conn/connection-context');
-var SSCaller = ctx.getLib('lib/axon/rpccaller');
+//var SSCaller = ctx.getLib('lib/axon/rpccaller');
+var SSCaller = ctx.getLib('lib/ipc/rpccaller');
 var ACLValidator = ctx.getLib('lib/auth/acl-validator');
 
 var JobTransaction = require('./lib/jobtransaction');
 var JobCaller = require('./lib/jobcaller');
 
-
-//var SS_URL = ctx.getUnixSocketUrl('ss.sock');
 var SS_URL = ctx.getClientUrl(19030);
 module.exports.create = function(prm)
 {
@@ -36,7 +35,8 @@ var JW = function JobWorker (prm)
   this.job_registry = JobRegistry.create({'redis':this.mem});
   this.acl_validator = ACLValidator.create(this.auth_cfg);
 
-  this.storagecaller = new SSCaller({'url':SS_URL});
+  //url not use for ipc lib
+  this.storagecaller = new SSCaller({'url':SS_URL,'to':'storage_request'});
 }
 
 JW.prototype.start = function ()
