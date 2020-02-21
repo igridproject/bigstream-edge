@@ -27,7 +27,7 @@ function MqttTrigger(cfg)
 
   this.regis = TriggerRegis.create({'mem':this.mem});
 
-  this.broker_url = "mqtt://192.168.0.99";
+  this.broker_url = ctx.getConfig('mqtt.url','mqtt://127.0.0.1');
 
 }
 
@@ -40,6 +40,7 @@ MqttTrigger.prototype.start = function ()
 
 MqttTrigger.prototype._start_listener = function ()
 {
+  console.log('MQTT_TRIGGER:Connecting ' + this.broker_url + '\t[OK]');
   console.log('MQTT_TRIGGER:Starting Listener\t[OK]');
   var self = this;
   self.reset();
