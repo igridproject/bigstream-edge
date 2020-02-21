@@ -2,7 +2,8 @@ var crypto = require("crypto");
 var ctx = require('./context');
 var JobWorker = ctx.getLib('jobworker/processor');
 
-var worker = JobWorker.create({'config':ctx.config,'name':'processor',id:genId()});
+var BSCONFIG = ctx.getConfig();
+var worker = JobWorker.create({'config':BSCONFIG,'name':'processor',id:genId()});
 worker.start();
 
 function genId()
