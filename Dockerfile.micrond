@@ -20,4 +20,4 @@ EXPOSE 19980 19080 19180
 
 # start server
 WORKDIR /app/bigstream-edge
-ENTRYPOINT pm2-docker pm2-edge.json
+ENTRYPOINT pm2-docker pm2-micronode.json
