@@ -19,7 +19,8 @@ RUN mkdir -p /var/bigstream/data
 EXPOSE 19980 19080 19180
 
 ARG APP_MODE=micronode
+RUN echo APP_MODE=${APP_MODE}
 
 # start server
 WORKDIR /app/bigstream-edge
-CMD pm2-runtime pm2-$APP_MODE.config.js
+CMD pm2-runtime pm2-${APP_MODE}.config.js
