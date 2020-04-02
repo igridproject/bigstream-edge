@@ -18,6 +18,9 @@ RUN mkdir -p /var/bigstream/data
 
 EXPOSE 19980 19080 19180
 
+ARG BS_MODE=edge
+ENV BS_MODE ${BS_MODE}
+
 # start server
 WORKDIR /app/bigstream-edge
-ENTRYPOINT pm2-docker pm2-edge.json
+CMD pm2-runtime pm2-${BS_MODE}.config.js
