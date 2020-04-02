@@ -1,4 +1,4 @@
-{
+module.exports = {
   "apps" : [ 
   {
     "name"        : "bs.coreservices",
@@ -11,7 +11,9 @@
   {
     "name"        : "bs.storage.read",
     "script"      : "./serv-storage.js",
-	"args"		  : "--process-read"
+    "args"		  : "--process-read",
+    "exec_mode"   : "cluster",
+	  "instances"   : process.env['BS_NUM_STORAGE_RD']||1
   },
   {
     "name"        : "bs.jobmaster",
@@ -23,7 +25,7 @@
     "output"      : "/dev/null",
     "error"      : "/dev/null",
 	  "exec_mode"   : "cluster",
-	  "instances"   : 2
+	  "instances"   : process.env['BS_NUM_PROCESSOR']||2
   },
   {
     "name"        : "bs.api.service",
@@ -35,6 +37,8 @@
   },
   {
     "name"        : "bs.trigger.httplistener",
-    "script"      : "./serv-httplistener.js"
+    "script"      : "./serv-httplistener.js",
+    "exec_mode"   : "cluster",
+	  "instances"   : process.env['BS_NUM_HTTP']||1
   }]
 }
