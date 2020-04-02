@@ -22,4 +22,4 @@ ARG APP_MODE=micronode
 
 # start server
 WORKDIR /app/bigstream-edge
-CMD ["pm2-runtime", "pm2-${APP_MODE}.config.js"]
+CMD pm2-runtime pm2-$APP_MODE.config.js
