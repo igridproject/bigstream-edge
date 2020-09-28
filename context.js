@@ -7,6 +7,15 @@ var cfg = require(CONFIG_PATH);
 
 module.exports.config = cfg;
 
+module.exports.getInfo = function (name)
+{
+  var BSINFO = {
+    "version" : require('./version')
+  }
+
+  return BSINFO;
+}
+
 module.exports.getConfig = function(name,def,opt){
   var option = {};
   var def_val = def || '';
