@@ -42,15 +42,7 @@ module.exports = {
 	  "instances"   : process.env['BS_NUM_HTTP']||1
   },
   {
-    "name"        : "bs.trigger.nbudp",
-    "script"      : "./serv-nbudptrigger.js"
-  },
-  {
     "name"        : "bs.trigger.mqtt",
     "script"      : "./serv-mqtttrigger.js"
-  },
-  {
-    "name"        : "bs.trigger.modbus-poll",
-    "script"      : "./serv-mbtrigger.js"
   }]
 }
