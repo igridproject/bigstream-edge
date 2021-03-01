@@ -21,6 +21,7 @@ function execute_function(context,response){
     client.setID(modbus_client_id);
 
 	  modbus_function (modbus_function_code,modbus_address, modbus_register_length, function(err, data) {
+      client.close();
       if(!err){
         var body = {
           "address" : modbus_address
